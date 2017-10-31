@@ -18,13 +18,6 @@ describe Personnummer do
       expect{ Personnummer.new('100101+001') }.not_to raise_error(ArgumentError)
       expect{ Personnummer.new('19900101-001') }.not_to raise_error(ArgumentError)
     end
-
-    it "throws ArgumentError on an invalid personnummer" do
-      expect{ Personnummer.new(nil) }.to raise_error(ArgumentError)
-      expect{ Personnummer.new(17) }.to raise_error(ArgumentError)
-      expect{ Personnummer.new('112233-4455') }.to raise_error(ArgumentError)
-      expect{ Personnummer.new('19112233-4455') }.to raise_error(ArgumentError)
-    end
   end
 
   describe "age" do
@@ -116,13 +109,26 @@ describe Personnummer do
   end
 
   describe "to_s" do
-    it "uses the standard string representation" do
-      Personnummer.new(9001010017).to_s.should == '900101-0017'
-      Personnummer.new('900101-0017').to_s.should == '900101-0017'
-      Personnummer.new('900101-001').to_s.should == '900101-0017'
-      Personnummer.new('19900101-001').to_s.should == '900101-0017'
-      Personnummer.new('18900101-001').to_s.should == '900101-0017'
-      Personnummer.new('7010632391').to_s.should == '701063-2391' # Samordningsnummer
+    context 'with as compact string' do
+      it "uses the compact string representation" do
+        Personnummer.new(9001010017).to_s.should == '900101-0017'
+        Personnummer.new('900101-0017').to_s.should == '900101-0017'
+        Personnummer.new('900101-001').to_s.should == '900101-0017'
+        Personnummer.new('19900101-001').to_s.should == '900101-0017'
+        Personnummer.new('18900101-001').to_s.should == '900101-0017'
+        Personnummer.new('7010632391').to_s.should == '701063-2391' # Samordningsnummer
+      end
+    end
+
+    context 'as full string' do
+      it "uses the full string representation" do
+        Personnummer.new(9001010017).to_s(full: true).should == '19900101-0017'
+        Personnummer.new('900101-0017').to_s(full: true).should == '19900101-0017'
+        Personnummer.new('900101-001').to_s(full: true).should == '19900101-0017'
+        Personnummer.new('19900101-001').to_s(full: true).should == '19900101-0017'
+        Personnummer.new('18900101-001').to_s(full: true).should == '18900101-0017'
+        Personnummer.new('7010632391').to_s(full: true).should == '19701063-2391' # Samordningsnummer
+      end
     end
   end
 

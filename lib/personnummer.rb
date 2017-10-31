@@ -42,8 +42,6 @@ class Personnummer
 
       # Check if the person is female based the serial (even == female)
       @female = (@serial % 2 == 0)
-    else
-      raise ArgumentError.new, "The supplied personnummer is invalid"
     end
   end
 
@@ -55,12 +53,20 @@ class Personnummer
     @born.to_date
   end
 
-  def to_s
-    born_string = born.strftime("%y%m%d")
+  def to_s(full: false)
+    if full
+      born_string = born.strftime("%Y%m%d")
+      r1 = 6..8
+      r2 = 0..5
+    else
+      born_string = born.strftime("%y%m%d")
+      r1 = 4..6
+      r2 = 0..3
+    end
 
     if co_ordination_number?
-      day = born_string[4..6].to_i + 60
-      born_string = [born_string[0..3], "%02d" % day].join
+      day = born_string[r1].to_i + 60
+      born_string = [born_string[r2], "%02d" % day].join
     end
 
     "%s%s%03d%d" % [born_string, @divider, @serial, @control_digit]
@@ -188,23 +194,18 @@ private
     def calculate_century(century, year)
       # Get the current date
       today = Date.today
+      return century * 100 if century != 0
 
-      if century == 0
-        # Decide which century corresponds to the number
-        if year < (today.year-2000) && @divider == '-'
-          century = 2000
-        elsif year < (today.year-2000) && @divider == '+'
-          century = 1900
-        elsif @divider == '+'
-          century = 1800
-        else
-          century = 1900
-        end
+      # Decide which century corresponds to the number
+      if year < (today.year-2000) && @divider == '-'
+        century = 2000
+      elsif year < (today.year-2000) && @divider == '+'
+        century = 1900
+      elsif @divider == '+'
+        century = 1800
       else
-        century *= 100
+        century = 1900
       end
-
-      return century
     end
   end
 end
