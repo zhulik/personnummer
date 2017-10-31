@@ -156,13 +156,17 @@ private
   end
 
   class Born
-    attr_reader :year, :month
+    attr_reader :year, :month, :day, :century_prefix
 
     def initialize(century, year, month, day, divider)
+
       @divider = divider
       @day     = day
       @month   = month
-      @year    = calculate_century(century, year) + year
+
+      c = calculate_century(century, year)
+      @century = c / 100
+      @year    = c + year
     end
 
     def day
@@ -198,13 +202,13 @@ private
 
       # Decide which century corresponds to the number
       if year < (today.year-2000) && @divider == '-'
-        century = 2000
+        2000
       elsif year < (today.year-2000) && @divider == '+'
-        century = 1900
+        1900
       elsif @divider == '+'
-        century = 1800
+        1800
       else
-        century = 1900
+        1900
       end
     end
   end
