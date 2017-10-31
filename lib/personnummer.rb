@@ -3,7 +3,7 @@ require 'date'
 
 class Personnummer
   # Public readonly attributes
-  attr_reader :region, :control_digit
+  attr_reader :region, :control_digit, :century_prefix
 
   def initialize(number)
     @valid = false
@@ -37,6 +37,7 @@ class Personnummer
       @born  = Born.new(century, year, month, day, @divider)
       @valid = @born.valid? && @valid
 
+      @century_prefix = @born.century_prefix
       # Get the region name
       @region = region_name(@serial)
 
@@ -54,22 +55,16 @@ class Personnummer
   end
 
   def to_s(full: false)
-    if full
-      born_string = born.strftime("%Y%m%d")
-      r1 = 6..8
-      r2 = 0..5
-    else
-      born_string = born.strftime("%y%m%d")
-      r1 = 4..6
-      r2 = 0..3
-    end
+    born_string = born.strftime("%y%m%d")
 
     if co_ordination_number?
-      day = born_string[r1].to_i + 60
-      born_string = [born_string[r2], "%02d" % day].join
+      day = born_string[4..6].to_i + 60
+      born_string = [born_string[0..3], "%02d" % day].join
     end
 
-    "%s%s%03d%d" % [born_string, @divider, @serial, @control_digit]
+    prefix = full ? century_prefix : nil
+
+    "%s%s%s%03d%d" % [prefix, born_string, @divider, @serial, @control_digit]
   end
 
   def valid?
@@ -165,7 +160,7 @@ private
       @month   = month
 
       c = calculate_century(century, year)
-      @century = c / 100
+      @century_prefix = (c / 100).to_s
       @year    = c + year
     end
 

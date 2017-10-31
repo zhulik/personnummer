@@ -108,6 +108,17 @@ describe Personnummer do
     end
   end
 
+  describe 'century_prefix' do
+    it 'returns valid sentury prefix' do
+      Personnummer.new(9001010017).century_prefix.should == '19'
+      Personnummer.new('900101-0017').century_prefix.should == '19'
+      Personnummer.new('900101-001').century_prefix.should == '19'
+      Personnummer.new('19900101-001').century_prefix.should == '19'
+      Personnummer.new('18900101-001').century_prefix.should == '18'
+      Personnummer.new('7010632391').century_prefix.should == '19' # Samordningsnummer
+    end
+  end
+
   describe "to_s" do
     context 'with as compact string' do
       it "uses the compact string representation" do
